@@ -4,6 +4,16 @@
 
 :global(.omrs-breakpoint-gt-phone) .patientSummary {
   display: flex;
+  flex-wrap:wrap;
+  align-items: flex-start;
   justify-content: center;
+}
+
+.sectionCards {
   padding-top: 3.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 50rem;
+  margin:auto;
 }

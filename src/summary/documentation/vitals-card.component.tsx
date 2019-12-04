@@ -7,6 +7,7 @@ import { formatDate } from "./dimension-helpers";
 import { createErrorHandler } from "@openmrs/esm-error-handling";
 import { useCurrentPatient } from "@openmrs/esm-api";
 import SummaryCardFooter from "../cards/summary-card-footer.component";
+import { link } from "fs";
 
 export default function VitalsCard(props: VitalsCardProps) {
   const [patientVitals, setPatientVitals] = React.useState(null);
@@ -31,6 +32,7 @@ export default function VitalsCard(props: VitalsCardProps) {
       name="Vitals"
       match={props.match}
       styles={{ flex: 1, margin: ".5rem", width: "45.5rem", maxWidth: "46rem" }}
+      link={`/patient/${patientUuid}/chart/vitals`}
     >
       <table className={styles.vitalsTable}>
         <thead>

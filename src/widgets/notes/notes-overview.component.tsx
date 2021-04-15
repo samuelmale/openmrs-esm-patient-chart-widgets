@@ -34,7 +34,7 @@ const NotesOverview: React.FC<NotesOverviewProps> = () => {
   const [error, setError] = React.useState(null);
   const [showAllNotes, setShowAllNotes] = React.useState(false);
   const displayText = t("notes", "notes");
-  const headerTitle = t("notes", "Notes");
+  const headerTitle = "Notisi";
 
   React.useEffect(() => {
     if (patient && patientUuid) {

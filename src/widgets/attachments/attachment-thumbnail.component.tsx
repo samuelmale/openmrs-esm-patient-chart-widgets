@@ -69,38 +69,6 @@ export default function AttachmentThumbnail(props: AttachmentThumbnailProps) {
         <FontAwesomeIcon icon={faInfoCircle} />
         <span className={styles.infoText}>{props.item.dateTime}</span>
       </div>
-      <div className={styles.caption}>
-        {editingCaption ? (
-          <div onClick={handleClick} role="button" tabIndex={0}>
-            <form>
-              <input
-                type="text"
-                defaultValue={caption}
-                onChange={updateCaption}
-              />
-              <div className={styles.actionButtons}>
-                <span onClick={cancelEdit} role="button" tabIndex={0}>
-                  x
-                </span>
-                <span onClick={saveCaption} role="button" tabIndex={0}>
-                  &#10003;
-                </span>
-              </div>
-            </form>
-          </div>
-        ) : (
-          <div>
-            <span
-              onClick={showEditCaptionForm}
-              role="button"
-              tabIndex={0}
-              className={styles.captionText}
-            >
-              {caption}
-            </span>
-          </div>
-        )}
-      </div>
       <Thumbnail {...props} />
     </div>
   );

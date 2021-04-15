@@ -3,19 +3,29 @@ import { useCurrentPatient, UserHasAccess } from "@openmrs/esm-framework";
 import {
   getAttachments,
   createAttachment,
-  deleteAttachment
+  deleteAttachment,
+  getRandomImages
 } from "./attachments.resource";
 import Gallery from "react-grid-gallery";
-import styles from "./attachments-overview.css";
+import styles from "./attachments-overview.scss";
 import CameraUpload from "./camera-upload.component";
 import { Trans } from "react-i18next";
 import AttachmentThumbnail from "./attachment-thumbnail.component";
 import dayjs from "dayjs";
+import Button from "carbon-components-react/lib/components/Button";
+import Add16 from "@carbon/icons-react/es/add/16";
+import PatientChartPagination from "../../ui-components/pagination/pagination.component";
+import paginate from "../../utils/paginate";
+import { Modal } from "./modal.component";
 
 export default function AttachmentsOverview() {
   const [attachments, setAttachments] = useState<Array<Attachment>>([]);
   const [currentImage, setCurrentImage] = useState(0);
   const [, , patientUuid] = useCurrentPatient();
+  const [randomImageArray, setRandomImageArray] = useState<Array<any>>([]);
+  const [pageNumber, setPageNumber] = React.useState(1);
+  const [currentPage, setCurrentPage] = React.useState<Array<any>>([]);
+  const [showCam, setShowCam] = useState(false);
 
   useEffect(() => {
     if (patientUuid) {
@@ -26,8 +36,8 @@ export default function AttachmentsOverview() {
             id: `${attachment.uuid}`,
             src: `/openmrs/ws/rest/v1/attachment/${attachment.uuid}/bytes`,
             thumbnail: `/openmrs/ws/rest/v1/attachment/${attachment.uuid}/bytes`,
-            thumbnailWidth: 320,
-            thumbnailHeight: 212,
+            thumbnailWidth: 170,
+            thumbnailHeight: 130,
             caption: attachment.comment,
             isSelected: false,
             dateTime: dayjs(attachment.dateTime).format("YYYY-MM-DD HH:mm:ss"),
@@ -39,6 +49,28 @@ export default function AttachmentsOverview() {
       );
     }
   }, [patientUuid]);
+
+  /**
+   * TODO: This should be removed, it sets mock data
+   */
+  // useEffect(() => {
+  //   setRandomImageArray(
+  //     getRandomImages().map(i => {
+  //       i["thumbnailWidth"] = 170;
+  //       i["thumbnailHeight"] = 140;
+  //       i["caption"] = undefined;
+  //       i["bytesContentFamily"] = "IMAGE";
+  //       return i;
+  //     })
+  //   );
+  // }, []);
+
+  useEffect(() => {
+    if (attachments.length) {
+      const [page, allPages] = paginate<any>(attachments, pageNumber, 8);
+      setCurrentPage(page);
+    }
+  }, [attachments, pageNumber]);
 
   function handleUpload(e: React.SyntheticEvent, files: FileList | null) {
     e.preventDefault();
@@ -53,7 +85,7 @@ export default function AttachmentsOverview() {
               const new_attachment = {
                 id: `${response.data.uuid}`,
                 src: `/openmrs/ws/rest/v1/attachment/${response.data.uuid}/bytes`,
-                thumbnail: `/openmrs/ws/rest/v1/attachment/${response.data.uuid}/bytes`,
+                thumbnail: `/openmrs/ws/rest/v1/attachment/${response.data.uuid}/bytes?view=complexdata.view.thumbnail`,
                 thumbnailWidth: 320,
                 thumbnailHeight: 212,
                 caption: response.data.comment,
@@ -142,20 +174,16 @@ export default function AttachmentsOverview() {
         onDrop={e => handleUpload(e, e.dataTransfer.files)}
         onDragOver={handleDragOver}
       >
-        <div className={styles.upload}>
-          <form className={styles.uploadForm}>
-            <label htmlFor="fileUpload" className={styles.uploadLabel}>
-              <Trans i18nKey="attachmentUploadText"></Trans>
-            </label>
-            <input
-              type="file"
-              id="fileUpload"
-              multiple
-              onChange={e => handleUpload(e, e.target.files)}
+        {showCam && (
+          <Modal>
+            <CameraUpload
+              onNewAttachment={handleNewAttachment}
+              openCameraOnRender={true}
+              shouldNotRenderButton={true}
+              closeCamera={() => setShowCam(false)}
             />
-          </form>
-          <CameraUpload onNewAttachment={handleNewAttachment} />
-        </div>
+          </Modal>
+        )}
         {getSelectedImages().length !== 0 && (
           <UserHasAccess privilege="Delete Attachment">
             <div className={styles.actions}>
@@ -168,17 +196,46 @@ export default function AttachmentsOverview() {
             </div>
           </UserHasAccess>
         )}
-        <Gallery
-          images={attachments}
-          currentImageWillChange={handleCurrentImageChange}
-          customControls={[
-            <button key="deleteAttachment" onClick={handleDelete}>
-              <Trans i18nKey="delete">Delete</Trans>
-            </button>
-          ]}
-          onSelectImage={handleImageSelect}
-          thumbnailImageComponent={AttachmentThumbnail}
-        />
+
+        <div id="container" className={styles.galleryContainer}>
+          <div className={styles.attachmentsHeader}>
+            <h4 className={`${styles.productiveHeading03} ${styles.text02}`}>
+              Attachments
+            </h4>
+            <Button
+              kind="ghost"
+              renderIcon={Add16}
+              iconDescription="Add attachment"
+              onClick={e => setShowCam(true)}
+            >
+              Add
+            </Button>
+          </div>
+          <Gallery
+            images={currentPage}
+            currentImageWillChange={handleCurrentImageChange}
+            customControls={[
+              <Button
+                kind="danger"
+                onClick={handleDelete}
+                className={styles.btnOverrides}
+              >
+                Delete
+              </Button>
+            ]}
+            onSelectImage={handleImageSelect}
+            thumbnailImageComponent={AttachmentThumbnail}
+            margin={3}
+          />
+          <PatientChartPagination
+            items={attachments}
+            onPageNumberChange={prop => setPageNumber(prop.page)}
+            pageNumber={pageNumber}
+            pageSize={8}
+            pageUrl=""
+            currentPage={currentPage}
+          />
+        </div>
       </div>
     </UserHasAccess>
   );

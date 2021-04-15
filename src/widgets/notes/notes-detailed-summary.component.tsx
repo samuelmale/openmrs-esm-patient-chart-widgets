@@ -209,7 +209,7 @@ function NotesDetailedSummary(props: NotesDetailedSummaryProps) {
       {patientNotes && (
         <div className={styles.notesSummary}>
           {patientNotes.length > 0 ? (
-            displayPatientNotes()
+            <div>Empty</div>
           ) : (
             <EmptyState
               displayText={t("notes", "notes")}

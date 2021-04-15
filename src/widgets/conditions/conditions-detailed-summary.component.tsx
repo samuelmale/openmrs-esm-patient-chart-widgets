@@ -41,7 +41,7 @@ export default function ConditionsDetailedSummary(
     <div className="styles.conditionSummary">
       {patientConditions?.length ? (
         <SummaryCard
-          name={t("conditions", "Conditions")}
+          name={t("conditions", "Conditionz")}
           styles={{ width: "100%" }}
           addComponent={ConditionsForm}
           showComponent={() =>

@@ -29,7 +29,6 @@ export default function CameraUpload(props: CameraUploadProps) {
 
   function handleCloseCamera() {
     setCameraIsOpen(false);
-    props.openCameraOnRender = false;
     if (props.closeCamera) {
       props.closeCamera();
     }
